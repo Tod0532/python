@@ -1,0 +1,131 @@
+import datetime
+from time import sleep
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+
+# chrome_options = Options()
+# prefs={
+#     'profile.default_content_setting_values': {
+#                        'images': 2,
+#                     # 'javascript': 2
+#                     }
+# }
+
+# options = Options()
+# webdriver.Chrome()
+# options.add_argument('--headless')
+# driver = webdriver.Chrome()
+# fm-login-id  fm-login-password 登录
+
+options = Options()
+prefs = {
+      'profile.default_content_setting_values': {
+           'images': 2,
+           # 'javascript': 2
+                }
+             }
+# options.add_argument('--headless')
+options.add_experimental_option('prefs', prefs)
+driver=webdriver.Chrome(chrome_options=options)
+
+
+class UsernameLogin():
+    now = datetime.datetime.now()
+    def __init__(self):
+        self.my_cart_url='https://cart.taobao.com/cart.htm'
+
+    def cart_picking(self,method,times):
+        '''
+        选择--全选，或手动选择
+        :param method:
+        :return:
+        '''
+        driver.get(self.my_cart_url)
+        sleep(5)
+        if method==0:
+            while True:
+                try:
+                    # if driver.find_element_by_id("J_SelectAll1"):
+                    #     driver.find_element_by_id("J_SelectAll1").click()
+                    #     print('全选成功： ',now.strftime('%Y-%m-%d %H:%M:%S'))
+                    #     break
+                    select_all=WebDriverWait(driver,10,0.01,ignored_exceptions=True).\
+                        until(EC.presence_of_element_located((By.ID,"J_SelectAll1")))
+                    if select_all:
+                        driver.find_element_by_id("J_SelectAll1").click()
+                        sleep(0.02)
+                        break
+                except:
+                    pass
+        if method==1:
+            print(f"请手动勾选需要购买的商品")
+            sleep(10)
+            now = datetime.datetime.now()
+            print('勾选完成： ', now.strftime('%Y-%m-%d %H:%M:%S.%f'))
+        ul.cart_buy()
+
+    def cart_buy(self):
+        '''
+        结算及提交订单
+        :return:
+        '''
+        # 点击结算按钮
+        while True:
+            now = datetime.datetime.now()
+            if now >= set_times:
+                now = datetime.datetime.now()
+                print('开始结算： ', now.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                while True:
+                    try:
+                        if driver.find_element_by_id("J_SmallSubmit"):
+                            driver.find_element_by_id("J_SmallSubmit").click()
+                        # submit=WebDriverWait(driver,10,0.01,ignored_exceptions=True).\
+                        #             until(EC.presence_of_element_located((By.ID,"J_SmallSubmit")))
+                        # if submit:
+                        #     driver.find_element_by_id("J_SmallSubmit").click()
+                        # if driver.find_element_by_id("J_Go"):
+                        #     driver.find_element_by_id("J_Go").click()
+
+                        # if driver.find_element_by_link_text("结 算"):
+                        #     driver.find_element_by_link_text("结 算").click()
+                        #     print(f"结算成功，准备提交订单")
+                            now = datetime.datetime.now()
+                            print('结算完成： ', now.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                            break
+                    except:
+                        pass
+                while True:
+                    try:
+                        if driver.find_element_by_link_text('提交订单'):
+                            driver.find_element_by_link_text('提交订单').click()
+                            now = datetime.datetime.now()
+                            print("抢购成功，请尽快付款",now.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                            break
+                    except:
+                        print("再次尝试提交订单")
+                sleep(0.01)
+                while True:
+                    try:
+                        input = WebDriverWait(driver, 6, 0.01, ignored_exceptions=True).until(EC.presence_of_element_located((By.ID, 'payPassword_rsainput')))
+                        enter=driver.find_element_by_id('J_authSubmit')
+                        if input and enter:
+                            input.send_keys('你的支付密码')
+                            sleep(0.01)
+                            enter.click()
+                            print("支付完成")
+                            now = datetime.datetime.now()
+                            print('支付完成： ', now.strftime('%Y-%m-%d %H:%M:%S.%f'))
+                            break
+                    except:
+                        pass
+            # break
+
+if __name__ == '__main__':
+    set_times=datetime.datetime(2020,5,14,11,4,0000)
+    ul = UsernameLogin()
+    ul.cart_picking(1,set_times)
