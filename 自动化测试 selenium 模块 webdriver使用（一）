@@ -1,0 +1,352 @@
+一、webdriver基本使用命令
+from selenium import webdriver   # 导入webdriver模块
+ 
+>>> chrome_obj = webdriver.Chrome()              # 打开Google浏览器
+>>> chrome_obj.get("https://www.baidu.com")      # 打开 网址
+ 
+>>> chrome_obj.get(r"C:\desktop\text.html")      # 打开本地 html页面
+ 
+>>> chrome_obj.title          # 获取打开网址 的名字 
+>>> chrome_obj.current_url    # 获取打开网址的 url<br><br>>>> chrome_obj.close() #关闭浏览器窗口
+
+二、标签导航　
+ 普通 定位标签
+# 查找标签
+>>> label = chrome_obj.find_element_by_id("kw")
+>>> label = chrome_obj.find_element_by_name("wd")
+>>> label = chrome_obj.find_element_by_class_name("s_ipt")
+>>> label = chrome_obj.find_element_by_tag_name("imput")
+ 
+>>> label = chrome_obj.find_element_by_link_text("a标签中的内容 准确定位")  
+>>> label = chrome_obj.find_element_by_partial_link_text("a标签中的内容 模糊定位 ")
+ 
+>>> label = chrome_obj.find_element_by_xpath(“放入 copy 标签中的常css路径”)
+>>> label = chrome_obj.find_element_by_css_selector(“input=[id='id_name'/name='name_name'/……/]")
+
+标签导航  xpath  标签定位复杂的情况下 考虑使用xpath
+XPath即为XML路径语言，它是一种用来确定XML（标准通用标记语言的子集）文档中某部分位置的语言。XPath基于XML的树状结构，有不同类型的节点，包括元素节点，属性节点和文本节点，提供在数据结构树中找寻节点的能力。
+
+# 绝对路径
+>>> label = chrome_obj.find_element_by_xpath("html/boday/p/input")   # 绝对路径 导航
+>>> label = chrome_obj.find_element_by_xpath("html/boday/p/input[1]") # 绝对路径导航，多个input框，确定第一个input框
+
+#相对路径
+>>> label = chrome_obj.find_element_by_xpath("//input")  # 相对路径导航  表示 整个文档当中的 input标签 默认为第一个  * 第一个“//” 表示 在整个文档中
+>>> label = chrome_obj.find_element_by_xpath("//input[2]") # 指定页面中的第二个 input框 没有就报错 
+
+
+# 父节点下找子节点
+>>> label = chrome_obj.find_element_by_xpath("//form//input")  # // 父节点//子节点  * 返回子节点 input
+>>> label = chrome_obj.find_element_by_xpath("//form//input[2]") # // 父节点//子节点 [2] * 指定 父节点下的 第二个 input子节点
+
+
+# 通过子节点 定位父节点
+>>> label = chrome_obj.find_element_by_xpath("//form//input/..")  # 返回input的父节点 form 标签
+>>> label = chrome_obj.find_element_by_xpath("//form//input/.")   # 当前节点
+
+
+# 通过属性查找节点
+>>> label = chrome_obj.find_element_by_xpath("//input[@id]")  # 相对路径导航  找到所有的 input标签 其中有 id属性的标签
+>>> label = chrome_obj.find_element_by_xpath("//input[@id='1']")  # 属性查找 在所有的input标签中 找到 具有 id=1 的input标签 
+>>> label = chrome_obj.find_element_by_xpath("//input[@name='xiahua']")  
+
+
+# 标签统计 countains
+>>> label = chrome_obj.find_element_by_xpath("//*[countains(input)=1]")  # //* 表示 整个文档中 的所有标签，[count(input)=1] 表示 父标签下只有 一个input子标签 的 input标签
+>>>label = chrome_obj.find_element_by_xpath("//*[countains(input)=2]")  # //* 表示 整个文档中 的所有标签，[count(input)=1] 表示 父标签下有 两个input子标签 的 input标签
+
+
+# local-name 模糊查找  
+>>> label = chrome_obj.find_element_by _xpath("//*[local-name()='input']")  # 查找当前文档中 的所有input标签 默认返回第一个
+>>> label = chrome_obj.find_element_by _xpath("//*input")      # 查找当前文档中 的所有input标签 默认返回第一个
+
+>>> label = chrome_obj.find_element_by _xpath("//*[local-name(),'i']")  # 查找当前文档中 标签名字中 包含字母 i的标签，比如 input title
+>>> label = chrome_obj.find_element_by _xpath("//*[local-name(),'i']")  # 查找当前文档中 的所有input标签 默认返回第一个
+
+>>> label = chrome_obj.find_element_by _xpath("//*[countains(local-name(),'i')] [last()])  # 查找当前文档中 所有包含 字母“i”的 标签 的子标签 的 最后一个元素  （有点懵逼）
+>>> label = chrome_obj.find_element_by _xpath("//*[strint-length(local-name()=3)] [last()])  # 查找当前文档中 所有 标签字符个数为5的标签，并且制定返回 最后一个标签。 title input（5个str）
+
+三、 模拟用户操作
+>>> label.get_attribute("type") # 显示标签的type属性 name type id placeholder
+>>> label.tag_name()  #获取标签名字  input p form ……
+ 
+>>> label.size
+>>> label.id
+ 
+>>> chrome_obj.maximize_window()# 窗口最大化 <br>>>> #模拟鼠标悬浮
+>>> label.click() # 模拟a标签  点击事件
+>>> label.send_keys("模拟搜索内容")  # 模拟input框 输入内容>>> label.clear() # 清除input标签中 输入的内容>>> chrome_obj.back() # 模拟浏览器 返回上一个浏览页面
+
+1、模拟鼠标操作
+
+from selenium.webdriver.common.action_chains import ActionChains #导入模块
+ 
+>>> label = chrome_obj.find_element_by_link_text("点我 悬浮 显示其他 a标签")
+ 
+>>> ActionChains(chrome_obj).move_to_element(label).perform()    # 模拟用户悬浮
+1
+"""　　ActionChains(chrome_obj) 用于生成模拟用户行为 ；
+1
+perform()  执行存储行为　　"""
+1
+>>> label_bel = chrome_obj.find_element_by_link_text("我是 a标签，点我页面跳转")>>> label_bel.click()   # 模拟用户点击
+　其他鼠标操作
+
+label.countext_lick() # 右击
+label.double_click() # 双击
+label.drag_and_drop() # 拖动
+label.move_to_element  # 悬浮
+label.click_and_hold  # 按鼠标左键一直不动
+
+2、模拟键盘操作
+from selenium.webdriver.common.keys import Keys  #  引入模块
+ 
+>>> label.send_keys("input输入的内容")
+ 
+>>> label.send_keys(Keys.BACK_SPANCE)  # 退格键
+ 
+>>>label.send_keys(Keys.CONTRL,'a')  # 全选
+ 
+>>>label.send_keys(Keys.CONTRL,'v')  # 粘贴
+ 
+>>>label.send_keys(Keys.CONTRL,'c')  # 复制
+ 
+>>>label.send_keys(Keys.CONTRL,'x‘’) # 剪切
+ 
+>>>label.send_keys(Keys.ENTER)   # 回车
+
+四、处理对话框
+python脚本实现自动登录
+
+from selenium import webdriver
+import time
+
+def automatic_login(name,pwd,url):
+    chrome = webdriver.Chrome()
+    chrome.get(url)
+
+    time.sleep(2)
+
+    chrome.maximize_window()
+
+    time.sleep(5)
+
+    chrome.find_element_by_xpath("/html/body/div[3]/div[2]/div[3]/div/div").click()
+
+    chrome.find_element_by_link_text("登录").click()
+    time.sleep(5)
+
+    name_label = chrome.find_element_by_id("id_account_l")
+    name_label.clear()
+    name_label.send_keys(name)
+
+    pwd_label = chrome.find_element_by_id("id_password_l")
+    pwd_label.clear()
+    pwd_label.send_keys(pwd)
+
+    time.sleep(5)
+
+    login_label = chrome.find_element_by_id("login_btn")
+    login_label.click()
+
+    time.sleep(15)
+    chrome.close()
+
+if __name__  == "__main__":
+    name = "helloyiwantong@163.com"
+    pwd = "helloyiwantong@1234"
+    url = "http://www.maiziedu.com/"
+    automatic_login(name,pwd,url)
+
+python automatic login
+
+五、控制多窗口
+>>> frome selenium import webdrive
+
+>>> chrome  = webdrive.Chrome()
+
+>>> chrome.get("https://www.baidu.come")
+
+>>> chrome.find_element_by_id("kw").send_keys("红花")
+
+>>> chrome.find_element_by_id("su").click()   # 打开百度搜索的第一个窗口
+
+
+
+>>> chrome.find_element_by_partial_link_text("百度百科").click() # 打开第二个窗口
+
+>>> chrome.find_element_by_partial_link_text("中药").click()  # 打开第三个窗口
+
+
+
+>>> chrome.window_handles  # 查看当前 打开窗口
+
+['CDwindow-D41F1F3BF5038E36E91EA7F7E7E9770D',
+
+'CDwindow-F2D1553323BDC39BE99DBF280804FCCC',
+
+'CDwindow-B41B29B8A7CB49BF191E46FF936E6A52',]
+
+>>> chrome.switch_to_window(chrome.window_handles[1])  # 使用索引切换到第二个窗
+
+>>> chrome.current_url()  # 查看当前url
+
+六、模拟用户自动登录
+
+from selenium import webdriver
+import time
+from selenium.webdriver.support.ui import WebDriverWait
+
+def wait_response_time(chrome,waittime,func):
+    # 返回 func执行结果
+    return WebDriverWait(chrome,waittime).until(func)
+
+def automatic_login(name,pwd,url):
+    chrome = webdriver.Chrome()
+    chrome.get(url)
+
+    time.sleep(2)
+
+    chrome.maximize_window()
+
+    # time.sleep(2)
+    # chrome.find_element_by_xpath("/html/body/div[3]/div[2]/div[3]/div/div").click()
+    ############## 第二种方法 设置时间延迟
+    # login_btn_lable = wait_response_time(chrome,5,
+    #                                      lambda chrome: chrome.find_element_by_xpath("/html/body/div[3]/div[2]/div[3]/div/div"))
+    # login_btn_lable.click()   ## 利用函数设置等待响应时间
+
+
+    chrome.find_element_by_link_text("登录").click()
+    time.sleep(1)
+
+
+
+    name_label = chrome.find_element_by_id("id_account_l")
+    name_label.send_keys(" ") # 防止发送不成功
+    name_label.clear()
+    name_label.send_keys(name)
+
+    pwd_label = chrome.find_element_by_id("id_password_l")
+    pwd_label.clear()
+    pwd_label.send_keys(pwd)
+
+    time.sleep(5)
+
+    login_label = chrome.find_element_by_id("login_btn")
+    login_label.click()
+
+    error_id="login-form-tips"
+    error_message=chrome.find_element_by_id(error_id)
+    err=error_message.text
+    print(error_message,type(error_message))
+    print(err)
+
+    # time.sleep(10)
+    # chrome.close()
+
+if __name__  == "__main__":
+    name = "helloyiwantong@163.com"
+    pwd = "helloyiwantong@134"
+    url = "http://www.maiziedu.com/"
+    automatic_login(name,pwd,url)
+
+automatic login
+
+七、模拟用户自动登录 封装接口
+
+
+from selenium import webdriver
+import time
+from selenium.webdriver.support.ui import WebDriverWait
+
+def open_browse():
+    """
+    open browser obj
+    :return:
+    """
+    browse_obj = webdriver.Chrome()
+    return browse_obj
+
+def click_url_and_clicl_loginbtn(browse,url):
+
+    """
+    open url and click "登录" btn
+    :param browse:
+    :param url:
+    :return:
+    """
+    browse.get(url)
+    browse.maximize_window()
+    loginbtn_lable=browse.find_element_by_link_text("登录")
+    loginbtn_lable.click()
+    time.sleep(1)
+
+def get_element_label(browse,element_id_dict):
+    """
+    get element lable
+    :param browse:
+    :param element_id_dict:
+    :return:
+    """
+    user_label = browse.find_element_by_id(element_id_dict["name"])
+    pwd_label = browse.find_element_by_id(element_id_dict.get("pwd"))
+    login_label = browse.find_element_by_id(element_id_dict.get("login"))
+    return (user_label,pwd_label,login_label)
+
+def send_key_s(lable_tuple,userinfo_dict,userinfo_list):
+    """
+    send userinfo and logian
+    :param lable_tuple:
+    :param userinfo_dict:
+    :param userinfo_list:
+    :return:
+    """
+
+    i=0
+    if i<=1:
+        for key in userinfo_list:
+            # lable_tuple[i].send_keys(" ")
+            # lable_tuple[i].click()
+            lable_tuple[i].send_keys(userinfo_dict.get(key))
+            i+=1
+            time.sleep(1)
+
+    lable_tuple[2].click()
+
+
+### 封装数据
+
+url = "http://www.maiziedu.com/"
+id_dict = {
+    "name":"id_account_l",
+    "pwd" : "id_password_l",
+    "login":"login_btn",
+}
+
+userinfo_dict={
+    "name" : "helloyiwantong@163.com",
+    "pwd" : "helloyiwantong@1234",
+    "url" : "http://www.maiziedu.com/",
+}
+
+# 函数使用
+
+userinfo_list =["name","pwd"]
+
+chrome = open_browse()
+click_url_and_clicl_loginbtn(chrome,url)
+
+lable_tuple = get_element_label(chrome,id_dict)
+
+send_key_s(lable_tuple,userinfo_dict,userinfo_list)
+
+automatic login
+
+
+
+
+
+
+
+
